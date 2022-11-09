@@ -1,0 +1,110 @@
+import pygame 
+import sys
+import random
+
+#contantes
+ANCHO = 800
+ALTO = 800
+color_rojo = (255,0,0)
+color_negro= (0,0,0)
+color_azul = (0,0,255)
+   
+#ventana
+ventana = pygame.display.set_mode((ANCHO,ALTO))
+backgroud = pygame.image.load('./fondo.png').convert_alpha()
+
+#jugador
+jugador_size = 50
+jugador_posicion = [ANCHO - jugador_size ,ALTO / 2]
+
+#enemigo
+enemigo_size = 50
+enemigo_posicion = [0, random.randint(0, ALTO - enemigo_size)]
+
+#enemigo2
+enemigo_size2 = 50
+enemigo_posicion2 = [random.randint(0, ANCHO - enemigo_size),0]
+
+game_over = False
+clock= pygame.time.Clock()
+
+def detectar_colision(jugador_posicion,enemigo_posicion):
+    jx = jugador_posicion[0]
+    jy = jugador_posicion[1]
+    ex = enemigo_posicion[0]
+    ey = enemigo_posicion[1] #error que hace que crashee ?????
+    if (ex >= jy and ex < (jy + jugador_size)) or (jy >= ex and jy < (ex + enemigo_size)):
+        if (ex >= jx and ex < (jx + jugador_size)) or (jx >= ex and jx < (ex + enemigo_size)):
+            return True
+    return False
+def detectar_colision2(jugador_posicion,enemigo_posicion2):
+    jx = jugador_posicion[0]
+    jy = jugador_posicion[1]
+    ex2 = enemigo_posicion2[0]
+    ey2 = enemigo_posicion2[1]
+    if (ex2 >= jx and ex2 < (jx + jugador_size)) or (jx >= ex2 and jx < (ex2 + enemigo_size2)):
+        if (ex2 >= jy and ex2 < (jy + jugador_size)) or (jy >= ey2 and jy < (ey2 + enemigo_size2)):
+            return True
+    return False
+
+
+while not game_over:
+    for event in pygame.event.get():
+        print(event)
+        if event.type == pygame.QUIT:
+            sys.exit()
+
+        if event.type == pygame.KEYDOWN:
+            x = jugador_posicion[0]
+            y = jugador_posicion[1]
+            if event.key == pygame.K_LEFT:
+                x -= jugador_size
+            if event.key == pygame.K_RIGHT:
+                x += jugador_size
+            if event.key == pygame.K_UP:
+                y -= jugador_size
+            if event.key == pygame.K_DOWN:
+                y += jugador_size
+
+            jugador_posicion[0] = x
+            jugador_posicion[1] = y
+
+            ventana.fill(color_negro)
+
+    #Configuracion enemigo
+    if enemigo_posicion[0] >= 0 and enemigo_posicion[0] < ANCHO:
+        enemigo_posicion[0] += 20
+    else: 
+        enemigo_posicion[1] = random.randint(0, ALTO - enemigo_size)
+        enemigo_posicion[0] = 0
+    ventana.fill(color_negro)
+
+       #Configuracion enemigo2
+    if enemigo_posicion2[1] >= 0 and enemigo_posicion2[1] < ALTO:
+        enemigo_posicion2[1] += 20
+    else: 
+        enemigo_posicion2[0] = random.randint(0, ANCHO - enemigo_size)
+        enemigo_posicion2[1] = 0
+    ventana.fill(color_negro)
+
+    #colisiones
+    if detectar_colision(jugador_posicion, enemigo_posicion):
+        game_over = True
+
+    if detectar_colision2(jugador_posicion, enemigo_posicion2):
+        game_over = True
+
+    ventana.blit(backgroud,(0,0))
+    #Dibujar enemigo
+    pygame.draw.rect (ventana, color_azul, (enemigo_posicion[0], enemigo_posicion[1], enemigo_size, enemigo_size))
+
+    #Dibujar enemigo2
+    pygame.draw.rect (ventana, color_azul, (enemigo_posicion2[0], enemigo_posicion2[1], enemigo_size2, enemigo_size2))
+
+    #Dibujar jugador
+    pygame.draw.rect(ventana, color_rojo, (jugador_posicion [0],jugador_posicion [1], jugador_size,jugador_size))
+    
+    
+    clock.tick (30)
+    pygame.display.update()
+
